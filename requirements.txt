@@ -1,2 +1,6 @@
+streamlit
 plotly
-joblib
+sqlite3
+altair
+pandas
+numpy
