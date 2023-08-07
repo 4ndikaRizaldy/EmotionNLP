@@ -15,7 +15,6 @@ st.set_page_config(page_icon="📉",
                        layout = 'wide', 
                        initial_sidebar_state = 'auto')
 gambar_lokal = 'foto/logo.png'
-st.image(gambar_lokal)
 
 
 # Utils
@@ -39,15 +38,19 @@ def get_prediction_proba(docx):
     return results
 
 def main():
-    
-    st.title("Aplikasi Kepuasan Pelanggan")
+    col3, col4 = st.columns([2,6])
+    with col3:
+        st.image(gambar_lokal)
+    with col4:
+        st.title("Aplikasi Kepuasan Pelanggan")
+        st.subheader("Home-Emotion In Text")
     menu = ["Home", "Monitor", "About"]
     choice = st.sidebar.selectbox("Menu", menu)
     create_page_visited_table()
     create_emotionclf_table()
     if choice == "Home":
         add_page_visited_details("Home", datetime.now())
-        st.subheader("Home-Emotion In Text")
+        
 
         with st.form(key='emotion_clf_form'):
             raw_text = st.text_area("Type Here")
@@ -55,7 +58,7 @@ def main():
 
             if raw_text.isdigit():
                 st.error("Hasil tidak bisa di deteksi. Input harus berupa teks, bukan angka.")
-            else:
+            if submit_text:
                 col1, col2 = st.columns(2)
                 # Apply Fxn Here
                 try:
@@ -104,27 +107,6 @@ def main():
 
             p = px.pie(pg_count, values='Counts', names='Pagename')
             st.plotly_chart(p, use_container_width=True)
-
-        with st.expander('Emotion Classifier Metrics'):
-            df_emotions = pd.DataFrame(view_all_prediction_details(), columns=['Rawtext', 'Prediction', 'Probability', 'Time_of_Visit'])
-            df_emotions = df_emotions.apply(lambda col: col.astype(str, errors='ignore'))
-            for entry in df_emotions.to_dict('records'):
-                for key, value in entry.items():
-                    if isinstance(value, str):
-                        entry[key] = value.encode('utf-8', 'ignore').decode('utf-8')
-
-            # Widget interaktif untuk memilih prediksi
-            all_predictions = df_emotions['Prediction'].unique()
-            selected_predictions = st.multiselect("Pilih Prediksi:", all_predictions, default=all_predictions)
-
-            # Memfilter data berdasarkan prediksi yang dipilih
-            filtered_data = df_emotions[df_emotions['Prediction'].isin(selected_predictions)]
-
-            st.dataframe(filtered_data)
-
-            prediction_count = filtered_data['Prediction'].value_counts().rename_axis('Prediction').reset_index(name='Counts')
-            pc = alt.Chart(prediction_count).mark_bar().encode(x='Prediction', y='Counts', color='Prediction')
-            st.altair_chart(pc, use_container_width=True)
 
     else:
         st.subheader("About")
